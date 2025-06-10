@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿Code,Style Name
 AW,Ice White Shaker
 GW,Gramercy White
@@ -20,3 +21,27 @@ TG,Midtown Grey
 TQ,Townplace Crema
 VW,Vista White
 AR,Woodland Brown Shaker
+=======
+﻿Code,Style Name
+AW,Ice White Shaker
+GW,Gramercy White
+PW,Petit White
+PD,Petit Blue
+PS,Petit Sand
+PR,Petit Brown
+AP,Pepper Shaker
+AA,Blaze Black Shaker
+AH,Homestead Oak
+AN,Nova Light Grey
+AB,Lait Grey
+AX,Xterra Blue
+AZ,Champagne Shaker
+AG,Greystone Shaker
+SL,Signature Pearl
+TW,Uptown White
+TS,Townsquare Grey
+TG,Midtown Grey
+TQ,Townplace Crema
+VW,Vista White
+AR,Woodland Brown Shaker
+>>>>>>> 18221e4 (Initial commit with full Symco quote builder)
