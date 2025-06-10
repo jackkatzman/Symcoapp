@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Symco Quote Builder</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+</head>
+<body class="bg-light">
+<div class="container py-4">
+  <h2 class="mb-4">🧾 Symco Quote Builder</h2>
+
+  <form method="post">
+<div class="row mb-3">
+  <div class="col-md-6">
+    <label class="form-label">Load Existing Quote</label>
+    <input type="file" class="form-control" id="load_file" accept=".json">
+  </div>
+  <div class="col-md-6">
+    <label class="form-label">Save As (optional)</label>
+    <input type="text" class="form-control" name="custom_filename" placeholder="e.g. Smith-Kitchen">
+  </div>
+</div>
+
+    <!-- Customer Info -->
+    <div class="row g-2 mb-3">
+      <div class="col-md-4"><label class="form-label">Customer Name</label><input name="customer_name" class="form-control"></div>
+      <div class="col-md-4"><label class="form-label">Phone</label><input name="customer_phone" class="form-control"></div>
+      <div class="col-md-4"><label class="form-label">Email</label><input name="customer_email" class="form-control"></div>
+    </div>
+
+    <!-- Bill To -->
+    <h5>Bill To</h5>
+    <div class="row g-2 mb-3">
+      <div class="col-md-4"><label class="form-label">Name</label><input name="bill_name" class="form-control"></div>
+      <div class="col-md-4"><label class="form-label">Address</label><input name="bill_address" class="form-control"></div>
+      <div class="col-md-4"><label class="form-label">City</label><input name="bill_city" class="form-control"></div>
+      <div class="col-md-2"><label class="form-label">State</label><input name="bill_state" class="form-control"></div>
+      <div class="col-md-2"><label class="form-label">Zip</label><input name="bill_zip" class="form-control"></div>
+      <div class="col-md-4"><label class="form-label">Phone</label><input name="bill_phone" class="form-control"></div>
+    </div>
+
+    <!-- Ship To -->
+    <h5>Ship To</h5>
+    <div class="row g-2 mb-3">
+      <div class="col-md-4"><label class="form-label">Name</label><input name="ship_name" class="form-control"></div>
+      <div class="col-md-4"><label class="form-label">Address</label><input name="ship_address" class="form-control"></div>
+      <div class="col-md-4"><label class="form-label">City</label><input name="ship_city" class="form-control"></div>
+      <div class="col-md-2"><label class="form-label">State</label><input name="ship_state" class="form-control"></div>
+      <div class="col-md-2"><label class="form-label">Zip</label><input name="ship_zip" class="form-control"></div>
+      <div class="col-md-4"><label class="form-label">Phone</label><input name="ship_phone" class="form-control"></div>
+    </div>
+
+    <!-- Pricing Settings -->
+    <h5>Pricing</h5>
+    <div class="row g-2 mb-4">
+      <div class="col-md-2"><label class="form-label">Markup</label><input name="markup" class="form-control" value="1.0"></div>
+      <div class="col-md-2"><label class="form-label">Assembly $</label><input name="assembly" class="form-control" value="0.0"></div>
+      <div class="col-md-2"><label class="form-label">Shipping $</label><input name="shipping" class="form-control" value="0.0"></div>
+      <div class="col-md-2"><label class="form-label">Discount Type</label>
+        <select name="discount_type" class="form-select">
+          <option value="%">Percent</option>
+          <option value="$">Flat $</option>
+        </select>
+      </div>
+      <div class="col-md-2"><label class="form-label">Discount</label><input name="discount" class="form-control" value="0"></div>
+      <div class="col-md-2"><label class="form-label">Payment $</label><input name="payment" class="form-control" value="0.0"></div>
+    </div>
+
+    <!-- Line Items -->
+    <h5>Line Items</h5>
+    <div id="item-container">
+      <div class="row g-2 item-row mb-2">
+        <div class="col-md-3">
+          <label class="form-label">SKU</label>
+          <input name="item[]" class="form-control sku-input" required>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Finish</label>
+          <select name="finish[]" class="form-select">
+            {% for code, name in finishes.items() %}
+              <option value="{{ code }}">{{ name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Hinge</label>
+          <select name="hinge[]" class="form-select">
+            <option value="">—</option>
+            <option>Left</option>
+            <option>Right</option>
+            <option>N/A</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Qty</label>
+          <input name="qty[]" type="number" class="form-control" min="1" value="1">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Unit Price</label>
+          <input class="form-control unit-price-display" readonly>
+        </div>
+        <div class="col-md-1">
+          <label class="form-label d-block invisible">Remove</label>
+          <button type="button" class="btn btn-danger w-100 remove-item">×</button>
+        </div>
+      </div>
+    </div>
+
+    <button type="button" id="add-item" class="btn btn-secondary mb-4">+ Add Cabinet</button>
+
+    <!-- Custom Line Items -->
+    <h5>Custom Items</h5>
+    <div id="custom-container">
+      <div class="row g-2 custom-row mb-2">
+        <div class="col-md-5">
+          <label class="form-label">Description</label>
+          <input name="custom_desc[]" class="form-control" placeholder="e.g. Crown molding install">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Price</label>
+          <input name="custom_price[]" type="number" step="0.01" class="form-control" value="0.00">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Qty</label>
+          <input name="custom_qty[]" type="number" class="form-control" value="1">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label d-block invisible">Remove</label>
+          <button type="button" class="btn btn-danger w-100 remove-custom">×</button>
+        </div>
+      </div>
+    </div>
+
+    <button type="button" id="add-custom" class="btn btn-secondary mb-4">+ Add Custom Line</button>
+
+    <!-- Document Options -->
+    <div class="row mb-3">
+      <div class="col-md-3">
+        <label class="form-label">Document Type</label>
+        <select name="doc_type" class="form-select">
+          <option value="Quote">Quote</option>
+          <option value="Invoice">Invoice</option>
+        </select>
+      </div>
+      <div class="col-md-9">
+        <label class="form-label">Custom Disclaimer</label>
+        <textarea name="custom_disclaimer" rows="2" class="form-control" placeholder="Leave blank to use default"></textarea>
+        <div class="form-check mt-1">
+          <input class="form-check-input" type="checkbox" name="include_disclaimer" checked>
+          <label class="form-check-label">Include disclaimer on PDF</label>
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Generate PDF</button>
+  </form>
+</div>
+
+<script>
+function activateAutocomplete() {
+  $(".sku-input").autocomplete({
+    source: function(request, response) {
+      $.getJSON("/autocomplete", { term: request.term }, response);
+    },
+    minLength: 1,
+    select: function(event, ui) {
+      const $row = $(this).closest(".item-row");
+      updateUnitPrice($row);
+    }
+  });
+}
+
+function updateUnitPrice($row) {
+  const sku = $row.find("input[name='item[]']").val().toUpperCase();
+  const finish = $row.find("select[name='finish[]']").val();
+  fetch("/autocomplete?term=" + sku)
+    .then(res => res.json())
+    .then(() => {
+      const estimated = sku && finish ? "$???" : "";
+      $row.find(".unit-price-display").val(estimated);
+    });
+}
+
+document.getElementById("add-item").addEventListener("click", () => {
+  const row = document.querySelector(".item-row").cloneNode(true);
+  row.querySelectorAll("input, select").forEach(el => {
+    if (el.tagName === "INPUT") el.value = el.type === "number" ? 1 : "";
+    if (el.classList.contains("unit-price-display")) el.value = "";
+    if (el.tagName === "SELECT") el.selectedIndex = 0;
+  });
+  document.getElementById("item-container").appendChild(row);
+  activateAutocomplete();
+});
+
+document.getElementById("add-custom").addEventListener("click", () => {
+  const row = document.querySelector(".custom-row").cloneNode(true);
+  row.querySelectorAll("input").forEach(el => el.value = el.type === "number" ? 1 : "");
+  document.getElementById("custom-container").appendChild(row);
+});
+
+document.addEventListener("click", function(e) {
+  if (e.target.classList.contains("remove-item")) {
+    const rows = document.querySelectorAll(".item-row");
+    if (rows.length > 1) e.target.closest(".item-row").remove();
+  }
+  if (e.target.classList.contains("remove-custom")) {
+    const rows = document.querySelectorAll(".custom-row");
+    if (rows.length > 1) e.target.closest(".custom-row").remove();
+  }
+});
+
+$(document).ready(() => activateAutocomplete());
+</script>
+
+<script>
+function setVal(name, val) {
+  const el = document.querySelector(`[name='${name}']`);
+  if (el) {
+    el.value = val || "";
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+}
+
+document.getElementById("load_file").addEventListener("change", function(event) {
+  const file = event.target.files[0];
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const data = JSON.parse(e.target.result);
+
+    const cust = data.customer || {};
+    setVal("customer_name", cust.name);
+    setVal("customer_phone", cust.phone);
+    setVal("customer_email", cust.email);
+
+    const bill = data.bill_to || {};
+    Object.entries(bill).forEach(([k,v]) => setVal("bill_" + k, v));
+    const ship = data.ship_to || {};
+    Object.entries(ship).forEach(([k,v]) => setVal("ship_" + k, v));
+
+    // Global fields
+    setVal("markup", data.markup);
+    setVal("assembly", data.assembly);
+    setVal("shipping", data.shipping);
+    setVal("discount", data.discount);
+    setVal("discount_type", data.discount_type);
+    setVal("payment", data.payment);
+    setVal("custom_disclaimer", data.custom_disclaimer);
+
+    const itemContainer = document.getElementById("item-container");
+    const customContainer = document.getElementById("custom-container");
+    const itemTemplate = document.querySelector(".item-row");
+    const customTemplate = document.querySelector(".custom-row");
+    itemContainer.innerHTML = "";
+    customContainer.innerHTML = "";
+
+    const items = data.quote_data || [];
+    items.forEach(item => {
+      if (item.sku === "CUSTOM") {
+        const row = customTemplate.cloneNode(true);
+        row.querySelector("input[name='custom_desc[]']").value = item.description || "";
+        row.querySelector("input[name='custom_price[]']").value = item.unit_price || 0;
+        row.querySelector("input[name='custom_qty[]']").value = item.qty || 1;
+        customContainer.appendChild(row);
+      } else {
+        const row = itemTemplate.cloneNode(true);
+        row.querySelector("input[name='item[]']").value = item.sku || "";
+
+        const finishSelect = row.querySelector("select[name='finish[]']");
+        if (![...finishSelect.options].some(opt => opt.value === item.finish)) {
+          const newOption = document.createElement("option");
+          newOption.value = item.finish;
+          newOption.text = item.finish;
+          finishSelect.appendChild(newOption);
+        }
+        finishSelect.value = item.finish || "";
+
+        row.querySelector("select[name='hinge[]']").value = item.hinge || "";
+        row.querySelector("input[name='qty[]']").value = item.qty || 1;
+        row.querySelector(".unit-price-display").value = item.unit_price?.toFixed(2) || "";
+        itemContainer.appendChild(row);
+      }
+    });
+
+    activateAutocomplete();
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>
