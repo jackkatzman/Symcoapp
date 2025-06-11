@@ -279,6 +279,7 @@ document.getElementById("load_file").addEventListener("change", function(event) 
 
         row.querySelector("select[name='hinge[]']").value = item.hinge || "";
         row.querySelector("input[name='qty[]']").value = item.qty || 1;
+        row.querySelector("input[name='unit_price[]']").value = item.unit_price?.toFixed(2) || "";
         row.querySelector(".unit-price-display").value = item.unit_price?.toFixed(2) || "";
         itemContainer.appendChild(row);
       }

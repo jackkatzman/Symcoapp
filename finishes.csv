@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-﻿Code,Style Name
+Code,Style Name
 AW,Ice White Shaker
 GW,Gramercy White
 PW,Petit White
@@ -21,8 +20,8 @@ TG,Midtown Grey
 TQ,Townplace Crema
 VW,Vista White
 AR,Woodland Brown Shaker
-=======
-﻿Code,Style Name
+=======,
+Code,Style Name
 AW,Ice White Shaker
 GW,Gramercy White
 PW,Petit White
@@ -44,4 +43,4 @@ TG,Midtown Grey
 TQ,Townplace Crema
 VW,Vista White
 AR,Woodland Brown Shaker
->>>>>>> 18221e4 (Initial commit with full Symco quote builder)
+>>>>>>> 18221e4 (Initial commit with full Symco quote builder),
