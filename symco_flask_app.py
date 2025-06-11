@@ -56,40 +56,24 @@ def quote():
         quote_data = []
         subtotal = 0
 
-        for i, (item, finish, qty, hinge) in enumerate(zip(items, finishes_selected, qtys, hinges)):
+        unit_prices = request.form.getlist("unit_price[]")
+        for item, finish, qty, hinge, form_unit_price in zip(items, finishes_selected, qtys, hinges, unit_prices):
             item = item.strip().upper()
-            finish = finish.strip().upper()
             try:
                 qty = int(qty)
             except:
                 continue
+
             row = pricelist[pricelist["ITEM #"] == item]
-            try:
-                fallback_price = float(request.form.getlist("unit_price[]")[i])
-            except:
-                fallback_price = None
+            if not row.empty and finish in row.columns and pd.notna(row[finish].values[0]) and str(row[finish].values[0]).strip() not in ["", "-"]:
+                base_price = float(row[finish].values[0])
+                unit_price = (base_price + assembly) * markup
+            else:
+                try:
+                    unit_price = float(form_unit_price)
+                except:
+                    continue
 
-            if row.empty or finish not in row.columns:
-                if fallback_price:
-                    unit_price = fallback_price
-                    line_total = qty * unit_price
-                    subtotal += line_total
-                    desc = item
-                    quote_data.append((item, desc, finishes.get(finish, finish), qty, unit_price, line_total, hinge))
-                continue
-
-            value = row[finish].values[0]
-            if pd.isna(value) or str(value).strip() in ["", "-"]:
-                if fallback_price:
-                    unit_price = fallback_price
-                    line_total = qty * unit_price
-                    subtotal += line_total
-                    desc = item
-                    quote_data.append((item, desc, finishes.get(finish, finish), qty, unit_price, line_total, hinge))
-                continue
-
-            base_price = float(value)
-            unit_price = (base_price + assembly) * markup
             line_total = qty * unit_price
             subtotal += line_total
             desc = item
@@ -187,6 +171,7 @@ def quote():
                 y -= 15
             y -= 10
 
+        c.setFont("Helvetica-Bold", 10)
         c.setFont("Helvetica-Bold", 10)
         c.drawString(400, y, "Subtotal:")
         c.drawRightString(width - 50, y, f"${subtotal:.2f}")
