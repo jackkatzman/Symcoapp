@@ -2,3 +2,4 @@ Flask
 pandas
 reportlab
 pillow
+openpyxl
