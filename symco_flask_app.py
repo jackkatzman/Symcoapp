@@ -56,65 +56,44 @@ def quote():
         quote_data = []
         subtotal = 0
 
-<<<<<<< HEAD
-        
-for i, (item, finish, qty, hinge) in enumerate(zip(items, finishes_selected, qtys, hinges)):
-    item = item.strip().upper()
-    qty = int(qty)
-    row = pricelist[pricelist["ITEM #"] == item]
-    try:
-        fallback_price = float(request.form.getlist("unit_price[]")[i])
-    except:
-        fallback_price = None
-
-    if row.empty or finish not in row.columns:
-        if fallback_price:
-            unit_price = fallback_price
-=======
-        for item, finish, qty, hinge in zip(items, finishes_selected, qtys, hinges):
+        for i, (item, finish, qty, hinge) in enumerate(zip(items, finishes_selected, qtys, hinges)):
             item = item.strip().upper()
-            qty = int(qty)
-            row = pricelist[pricelist["ITEM #"] == item]
-            if row.empty or finish not in row.columns:
+            finish = finish.strip().upper()
+            try:
+                qty = int(qty)
+            except:
                 continue
+            row = pricelist[pricelist["ITEM #"] == item]
+            try:
+                fallback_price = float(request.form.getlist("unit_price[]")[i])
+            except:
+                fallback_price = None
+
+            if row.empty or finish not in row.columns:
+                if fallback_price:
+                    unit_price = fallback_price
+                    line_total = qty * unit_price
+                    subtotal += line_total
+                    desc = item
+                    quote_data.append((item, desc, finishes.get(finish, finish), qty, unit_price, line_total, hinge))
+                continue
+
             value = row[finish].values[0]
             if pd.isna(value) or str(value).strip() in ["", "-"]:
+                if fallback_price:
+                    unit_price = fallback_price
+                    line_total = qty * unit_price
+                    subtotal += line_total
+                    desc = item
+                    quote_data.append((item, desc, finishes.get(finish, finish), qty, unit_price, line_total, hinge))
                 continue
+
             base_price = float(value)
             unit_price = (base_price + assembly) * markup
->>>>>>> 18221e4 (Initial commit with full Symco quote builder)
             line_total = qty * unit_price
             subtotal += line_total
             desc = item
             quote_data.append((item, desc, finishes.get(finish, finish), qty, unit_price, line_total, hinge))
-<<<<<<< HEAD
-            print(f"⚠️ Used fallback price for {item}: ${unit_price}")
-        else:
-            print(f"❌ Skipped {item}: finish column not found")
-        continue
-
-    value = row[finish].values[0]
-    if pd.isna(value) or str(value).strip() in ["", "-"]:
-        if fallback_price:
-            unit_price = fallback_price
-            line_total = qty * unit_price
-            subtotal += line_total
-            desc = item
-            quote_data.append((item, desc, finishes.get(finish, finish), qty, unit_price, line_total, hinge))
-            print(f"⚠️ Used fallback for {item} due to bad value")
-        else:
-            print(f"❌ Skipped {item}: finish price missing or invalid")
-        continue
-
-    base_price = float(value)
-    unit_price = (base_price + assembly) * markup
-    line_total = qty * unit_price
-    subtotal += line_total
-    desc = item
-    quote_data.append((item, desc, finishes.get(finish, finish), qty, unit_price, line_total, hinge))
-((item, desc, finishes.get(finish, finish), qty, unit_price, line_total, hinge))
-=======
->>>>>>> 18221e4 (Initial commit with full Symco quote builder)
 
         for desc, price, qty in zip(custom_descs, custom_prices, custom_qtys):
             if not desc.strip():
